@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EstadoMesa {
+  vacia
+  ocupada
+  por_pagar
+}
+
+enum EstadoOrden {
+  pendiente
+  en_preparacion
+  lista
+  entregada
+  pagada
+  cancelada
+}
+
+enum Rol {
+  administrador
+  cocinero
+  mesero
+  cajero
+}
+
+model Usuario {
+  id_usuario Int     @id @default(autoincrement())
+  nombre     String
+  rol        Rol
+  telefono   String?
+  correo     String  @unique
+  contrasena String
+  turno      String
+  sueldo     String
+  Ordenes    Orden[]
+}
+
+model Carta {
+  id_plato     Int         @id @default(autoincrement())
+  nombre       String
+  ingredientes String?
+  precio       Decimal
+  stock        Int         @default(0)
+  orden_items  OrdenItem[]
+}
+
+model Mesa {
+  id_mesa Int        @id
+  estado  EstadoMesa @default(vacia)
+  ordenes Orden[]
+}
+
+model Orden {
+  id_orden     Int         @id @default(autoincrement())
+  id_mesero    Int
+  id_mesa      Int
+  precio_total Decimal     @default(0)
+  estado       EstadoOrden @default(pendiente)
+  fecha_hora   DateTime    @default(now())
+  mesero       Usuario     @relation(fields: [id_mesero], references: [id_usuario])
+  mesa         Mesa        @relation(fields: [id_mesa], references: [id_mesa])
+  items        OrdenItem[]
+}
+
+model OrdenItem {
+  id              Int     @id @default(autoincrement())
+  id_orden        Int
+  id_plato        Int
+  cantidad        Int
+  precio_unitario Decimal
+  orden           Orden   @relation(fields: [id_orden], references: [id_orden])
+  plato           Carta   @relation(fields: [id_plato], references: [id_plato])
+}

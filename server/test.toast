@@ -1,0 +1,11 @@
+json{
+    "url": "http://localhost:3000/mesas",
+    "name": "Crear mesa",
+    "method": "POST",
+    "bodyTypeState": "Raw",
+    "rawTypeState": "JSON",
+    "json": "{\"id_mesa\": 1}",
+    "headers": [],
+    "params": [],
+    "expandState": false
+}
