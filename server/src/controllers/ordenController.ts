@@ -1,20 +1,6 @@
-import {Request, Response} from 'express';
-import {prisma} from '../lib/prisma'
-
-export const getOrden = async (req: Request, res: Response) => {
-    try {
-        const ordenes = await prisma.orden.findMany({
-            include: {
-                items: true,
-                mesero: { select: { nombre: true, rol: true } },
-                mesa: true
-            }
-        });
-        res.json(ordenes);
-    } catch (err) {
-        res.status(500).json({error:'Error al obtener la orden'})
-    }
-};
+import { Request, Response } from 'express';
+import { prisma } from '../lib/prisma';
+import { io } from '../app';
 
 export const crearOrden = async (req: Request, res: Response) => {
     try {
@@ -38,11 +24,25 @@ export const crearOrden = async (req: Request, res: Response) => {
                 }
             },
             include: {
-                items: true,
+                items: {
+                    include: {
+                        plato: true
+                    }
+                },
                 mesero: { select: { nombre: true, rol: true } },
                 mesa: true
             }
         });
+
+        // Actualizar estado de la mesa a ocupada
+        await prisma.mesa.update({
+            where: { id_mesa: id_mesa },
+            data: { estado: 'ocupada' }
+        });
+
+        // Notifica a la cocina que llego una nueva orden
+        io.to('cocina').emit('nueva_orden', orden);
+
         res.status(201).json(orden);
     } catch (error) {
         console.log(error);
@@ -52,20 +52,53 @@ export const crearOrden = async (req: Request, res: Response) => {
 
 export const actualizarOrden = async (req: Request, res: Response) => {
     try {
-        const {id_orden} = req.params;
+        const { id_orden } = req.params;
         const { estado } = req.body;
 
         const orden = await prisma.orden.update({
             where: { id_orden: parseInt(id_orden as string) },
             data: { estado },
             include: {
-                items: true,
+                items: {
+                    include: {
+                        plato: true
+                    }
+                },
                 mesero: { select: { nombre: true, rol: true } },
                 mesa: true
             }
         });
+
+        // Notifica segun el nuevo estado
+        if (estado === 'lista') {
+            io.to('mesero').emit('orden_lista', orden);
+        }
+
+        if (estado === 'pagada') {
+            io.to('cajero').emit('orden_pagada', orden);
+        }
+
         res.json(orden);
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar la orden' });
     }
-}
+};
+
+export const getOrden = async (req: Request, res: Response) => {
+    try {
+        const ordenes = await prisma.orden.findMany({
+            include: {
+                items: {
+                    include: {
+                        plato: true
+                    }
+                },
+                mesero: { select: { nombre: true, rol: true } },
+                mesa: true
+            }
+        });
+        res.json(ordenes);
+    } catch (err) {
+        res.status(500).json({ error: 'Error al obtener la orden' });
+    }
+};

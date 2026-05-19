@@ -36,8 +36,6 @@ model Usuario {
   telefono   String?
   correo     String  @unique
   contrasena String
-  turno      String
-  sueldo     String
   Ordenes    Orden[]
 }
 

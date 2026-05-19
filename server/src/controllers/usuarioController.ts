@@ -25,12 +25,12 @@ export const getUsuario = async (req: Request, res: Response) => {
 
 export const crearUsuario = async (req: Request, res: Response) => {
     try {
-        const { nombre, rol, telefono, correo, contrasena, turno, sueldo } = req.body;
+        const { nombre, rol, telefono, correo, contrasena} = req.body;
 
         const contrasenaEncriptada = await bcrypt.hash(contrasena, 10);
 
         const usuario = await prisma.usuario.create({
-            data: { nombre, rol, telefono, correo, contrasena: contrasenaEncriptada, turno, sueldo },
+            data: { nombre, rol, telefono, correo, contrasena: contrasenaEncriptada},
             select: seleccionSinContrasena
         });
         res.status(201).json(usuario);
@@ -42,9 +42,9 @@ export const crearUsuario = async (req: Request, res: Response) => {
 export const actualizarUsuario = async (req: Request, res: Response) => {
     try {
         const { id_usuario } = req.params;
-        const { nombre, rol, telefono, correo, contrasena, turno, sueldo } = req.body;
+        const { nombre, rol, telefono, correo, contrasena} = req.body;
 
-        const data: any = { nombre, rol, telefono, correo, turno, sueldo };
+        const data: any = { nombre, rol, telefono, correo};
 
         if (contrasena) {
             data.contrasena = await bcrypt.hash(contrasena, 10);
