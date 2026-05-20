@@ -5,8 +5,8 @@ import {verificarRol} from "../middlewares/roleMiddleware";
 
 const router = Router();
 
-router.get('/', verificarToken, verificarRol("administrador", "mesero", "cajero"), getOrden);
+router.get('/', verificarToken, verificarRol("administrador", "mesero", "cajero", "cocinero"), getOrden);
 router.post("/", verificarToken, verificarRol("mesero"), crearOrden);
-router.put("/:id_orden", verificarToken, verificarRol("mesero", "cocinero"), actualizarOrden);
+router.put("/:id_orden", verificarToken, verificarRol("mesero", "cocinero", "cajero"), actualizarOrden);
 
 export default router;

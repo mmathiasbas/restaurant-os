@@ -45,7 +45,6 @@ export const crearOrden = async (req: Request, res: Response) => {
 
         res.status(201).json(orden);
     } catch (error) {
-        console.log(error);
         res.status(500).json({ error: 'Error al crear la orden' });
     }
 };
@@ -71,7 +70,17 @@ export const actualizarOrden = async (req: Request, res: Response) => {
 
         // Notifica segun el nuevo estado
         if (estado === 'lista') {
-            io.to('mesero').emit('orden_lista', orden);
+            await prisma.mesa.update({
+                where: { id_mesa: orden.id_mesa },
+                data: { estado: 'lista' }
+            });
+        }
+
+        if (estado === 'entregada') {
+            await prisma.mesa.update({
+                where: { id_mesa: orden.id_mesa },
+                data: { estado: 'por_pagar' }
+            });
         }
 
         if (estado === 'pagada') {

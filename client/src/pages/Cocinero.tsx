@@ -32,8 +32,12 @@ export default function Cocinero() {
     }, []);
 
     const cambiarEstado = async (id_orden: number, estado: string) => {
-        await actualizarEstadoOrden(id_orden, estado);
-        cargarOrdenes();
+        try {
+            await actualizarEstadoOrden(id_orden, estado);
+            cargarOrdenes();
+        } catch (error) {
+            console.error('Error al actualizar:', error);
+        }
     };
 
     return (

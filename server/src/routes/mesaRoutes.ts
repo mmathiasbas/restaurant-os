@@ -7,7 +7,7 @@ const router = Router();
 
 router.get('/', verificarToken, getMesas); // Se usa cuando hacen el GET
 router.post('/', verificarToken, verificarRol("administrador"), crearMesa); // Se usa cuando hacen el POST
-router.put('/:id_mesa', verificarToken, verificarRol("administrador"), actualizarMesa);
+router.put('/:id_mesa', verificarToken, verificarRol("administrador", "cajero"), actualizarMesa);
 router.delete('/:id_mesa', verificarToken, verificarRol("administrador"), eliminarMesa);
 
 export default router;
