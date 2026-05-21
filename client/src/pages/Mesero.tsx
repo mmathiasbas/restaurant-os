@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/useAuth';
 import { getMesas } from '../services/mesaService';
+import { actualizarEstadoMesa } from '../services/mesaService';
 import { actualizarEstadoOrden, getOrdenes } from '../services/ordenService';
 import TarjetaMesa from '../components/TarjetaMesa';
 import FormularioOrden from '../components/FormularioOrden';
+import VerOrdenMesa from '../components/VerOrdenMesa';
 
 interface Mesa {
     id_mesa: number;
@@ -14,32 +16,70 @@ interface Orden {
     id_orden: number;
     id_mesa: number;
     estado: string;
+    precio_total: string;
+    items: {
+        id: number;
+        cantidad: number;
+        precio_unitario: string;
+        plato: { nombre: string };
+    }[];
+    mesa?: { id_mesa: number };
 }
 
-export default function Mesero() {
+interface Props {
+    modoDemo?: boolean;
+}
+
+export default function Mesero({ modoDemo = false }: Props) {
     const { usuario, logout } = useAuth();
     const [mesas, setMesas] = useState<Mesa[]>([]);
     const [mesaSeleccionada, setMesaSeleccionada] = useState<Mesa | null>(null);
     const [mesaParaEntregar, setMesaParaEntregar] = useState<Mesa | null>(null);
-
-    useEffect(() => {
-        getMesas().then(setMesas);
-    }, []);
+    const [ordenActiva, setOrdenActiva] = useState<Orden | null>(null);
 
     const cargarMesas = () => {
         getMesas().then(setMesas);
     };
 
-    const handleMesaClick = (mesa: Mesa) => {
+    useEffect(() => {
+        cargarMesas();
+    }, []);
+
+    const buscarOrdenActiva = async (id_mesa: number) => {
+        const ordenes = await getOrdenes();
+        const orden = ordenes.find((o: Orden) =>
+            o.id_mesa === id_mesa && (o.estado === 'pendiente' || o.estado === 'en_preparacion')
+        );
+        if (orden) setOrdenActiva(orden);
+    };
+
+    const handleMesaClick = async (mesa: Mesa) => {
         if (mesa.estado === 'vacia') {
             setMesaSeleccionada(mesa);
         } else if (mesa.estado === 'lista') {
             setMesaParaEntregar(mesa);
+        } else if (mesa.estado === 'ocupada') {
+            await buscarOrdenActiva(mesa.id_mesa);
         }
     };
 
     const handleOrdenCreada = () => {
         setMesaSeleccionada(null);
+        cargarMesas();
+    };
+
+    const handleOrdenActualizada = async () => {
+        if (!ordenActiva) return;
+        await buscarOrdenActiva(ordenActiva.id_mesa);
+        cargarMesas();
+    };
+
+    const handleCancelarOrden = async () => {
+        if (!ordenActiva || ordenActiva.estado !== 'pendiente') return;
+
+        await actualizarEstadoOrden(ordenActiva.id_orden, 'cancelada');
+        await actualizarEstadoMesa(ordenActiva.id_mesa, 'vacia');
+        setOrdenActiva(null);
         cargarMesas();
     };
 
@@ -57,28 +97,48 @@ export default function Mesero() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8">
-            <div className="max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">
-                        Bienvenido, {usuario?.nombre}
-                    </h1>
-                    <button onClick={logout} className="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">
-                        Cerrar sesión
-                    </button>
-                </div>
+        <div className={`${modoDemo ? 'min-h-[720px]' : 'min-h-screen'} bg-[#F7F7F7] pb-24 text-[#0A0A0A]`}>
+            <main className="mx-auto w-full max-w-md px-4 py-5">
+                <header className="mb-5 rounded-3xl border border-[#E4E4E4] bg-white p-5">
+                    <p className="text-sm font-medium text-[#6B7280]">Mesero</p>
+                    <div className="mt-2 flex items-end justify-between gap-3">
+                        <div>
+                            <h1 className="text-2xl font-extrabold tracking-tight">Mesas</h1>
+                            <p className="mt-1 text-sm text-[#6B7280]">{usuario?.nombre}</p>
+                        </div>
+                        <button
+                            onClick={cargarMesas}
+                            className="min-h-11 rounded-2xl border border-[#E4E4E4] px-4 text-sm font-semibold hover:bg-[#F7F7F7]"
+                        >
+                            Sincronizar
+                        </button>
+                    </div>
+                </header>
 
-                <h2 className="text-lg font-medium text-gray-700 mb-4">Mesas</h2>
-                <div className="grid grid-cols-4 gap-4">
+                <section className="grid grid-cols-2 gap-3">
                     {mesas.map(mesa => (
                         <TarjetaMesa key={mesa.id_mesa} mesa={mesa} onClick={handleMesaClick} />
                     ))}
-                </div>
+                </section>
 
                 {mesas.length === 0 && (
-                    <p className="text-gray-400 text-center mt-8">No hay mesas registradas</p>
+                    <p className="mt-8 rounded-2xl border border-dashed border-[#E4E4E4] bg-white p-6 text-center text-sm text-[#6B7280]">
+                        No hay mesas registradas
+                    </p>
                 )}
-            </div>
+            </main>
+
+            <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E4E4E4] bg-white/95 px-4 py-3 backdrop-blur">
+                <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
+                    <button className="min-h-12 rounded-2xl bg-[#171717] text-sm font-semibold text-white">Mesas</button>
+                    <button onClick={cargarMesas} className="min-h-12 rounded-2xl border border-[#E4E4E4] text-sm font-semibold text-[#0A0A0A]">Actualizar</button>
+                    {!modoDemo ? (
+                        <button onClick={logout} className="min-h-12 rounded-2xl border border-[#E4E4E4] text-sm font-semibold text-[#0A0A0A]">Salir</button>
+                    ) : (
+                        <button className="min-h-12 rounded-2xl border border-[#E4E4E4] text-sm font-semibold text-[#6B7280]">Demo</button>
+                    )}
+                </div>
+            </nav>
 
             {mesaSeleccionada && (
                 <FormularioOrden
@@ -88,17 +148,26 @@ export default function Mesero() {
                 />
             )}
 
+            {ordenActiva && (
+                <VerOrdenMesa
+                    orden={ordenActiva}
+                    onCerrar={() => setOrdenActiva(null)}
+                    onOrdenActualizada={handleOrdenActualizada}
+                    onCancelarOrden={handleCancelarOrden}
+                />
+            )}
+
             {mesaParaEntregar && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-6 w-full max-w-sm">
-                        <h2 className="text-xl font-bold mb-2">Mesa {mesaParaEntregar.id_mesa}</h2>
-                        <p className="text-gray-600 mb-6">¿Confirmas que entregaste la orden al cliente?</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setMesaParaEntregar(null)} className="flex-1 border rounded-lg py-2 text-sm hover:bg-gray-50">
+                <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-3 sm:items-center">
+                    <div className="w-full max-w-sm rounded-3xl border border-[#E4E4E4] bg-white p-6">
+                        <h2 className="text-xl font-bold">Mesa {mesaParaEntregar.id_mesa}</h2>
+                        <p className="mt-2 text-sm text-[#6B7280]">Confirma que entregaste la orden al cliente.</p>
+                        <div className="mt-6 flex gap-3">
+                            <button onClick={() => setMesaParaEntregar(null)} className="min-h-12 flex-1 rounded-xl border border-[#E4E4E4] text-sm font-semibold hover:bg-[#F7F7F7]">
                                 Cancelar
                             </button>
-                            <button onClick={handleEntregar} className="flex-1 bg-gray-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-gray-700">
-                                Confirmar entrega
+                            <button onClick={handleEntregar} className="min-h-12 flex-1 rounded-xl bg-[#171717] text-sm font-semibold text-white hover:bg-black">
+                                Confirmar
                             </button>
                         </div>
                     </div>

@@ -8,6 +8,10 @@ import usuarioRoutes from './routes/usuarioRoutes';
 import ordenRoutes from './routes/ordenRoutes';
 import cartaRoutes from './routes/cartaRoutes';
 import authRoutes from './routes/authRoutes';
+import adminRoutes from './routes/adminRoutes';
+import jornadaRoutes from './routes/jornadaRoutes';
+import ventaRoutes from './routes/ventaRoutes';
+import actividadRoutes from './routes/actividadRoutes';
 
 const app = express();
 const httpServer = createServer(app);
@@ -28,6 +32,10 @@ app.use('/mesas', mesaRoutes);
 app.use('/usuarios', usuarioRoutes);
 app.use('/carta', cartaRoutes);
 app.use('/ordenes', ordenRoutes);
+app.use('/admin', adminRoutes);
+app.use('/jornadas', jornadaRoutes);
+app.use('/ventas', ventaRoutes);
+app.use('/actividades', actividadRoutes);
 
 // Socket.io
 io.on('connection', (socket) => {

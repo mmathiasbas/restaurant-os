@@ -30,6 +30,11 @@ enum Rol {
   cajero
 }
 
+enum EstadoJornada {
+  abierto
+  cerrado
+}
+
 model Usuario {
   id_usuario Int     @id @default(autoincrement())
   nombre     String
@@ -38,6 +43,7 @@ model Usuario {
   correo     String  @unique
   contrasena String
   Ordenes    Orden[]
+  ventas     Venta[]
 }
 
 model Carta {
@@ -65,6 +71,7 @@ model Orden {
   mesero       Usuario     @relation(fields: [id_mesero], references: [id_usuario])
   mesa         Mesa        @relation(fields: [id_mesa], references: [id_mesa])
   items        OrdenItem[]
+  venta        Venta?
 }
 
 model OrdenItem {
@@ -75,4 +82,29 @@ model OrdenItem {
   precio_unitario Decimal
   orden           Orden   @relation(fields: [id_orden], references: [id_orden])
   plato           Carta   @relation(fields: [id_plato], references: [id_plato])
+}
+
+model Jornada {
+  id             Int           @id @default(autoincrement())
+  fecha_apertura DateTime      @default(now())
+  fecha_cierre   DateTime?
+  estado         EstadoJornada @default(abierto)
+}
+
+model Venta {
+  id          Int      @id @default(autoincrement())
+  id_orden    Int      @unique
+  id_cajero   Int
+  monto       Decimal
+  metodo_pago String
+  fecha       DateTime @default(now())
+  orden       Orden    @relation(fields: [id_orden], references: [id_orden])
+  cajero      Usuario  @relation(fields: [id_cajero], references: [id_usuario])
+}
+
+model Actividad {
+  id          Int      @id @default(autoincrement())
+  tipo        String
+  descripcion String
+  fecha       DateTime @default(now())
 }

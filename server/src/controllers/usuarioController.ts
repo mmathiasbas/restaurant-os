@@ -8,8 +8,6 @@ const seleccionSinContrasena = {
     rol: true,
     telefono: true,
     correo: true,
-    turno: true,
-    sueldo: true,
 };
 
 export const getUsuario = async (req: Request, res: Response) => {

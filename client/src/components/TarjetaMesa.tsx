@@ -8,11 +8,11 @@ interface Props {
     onClick: (mesa: Mesa) => void;
 }
 
-const colores: Record<string, string> = {
-    vacia: 'bg-green-100 border-green-300 hover:bg-green-200',
-    ocupada: 'bg-red-100 border-red-300 hover:bg-red-200',
-    lista: 'bg-blue-100 border-blue-300 hover:bg-blue-200',
-    por_pagar: 'bg-yellow-100 border-yellow-300 hover:bg-yellow-200',
+const estilos: Record<string, string> = {
+    vacia: 'border-[#16A34A] bg-[#16A34A]/5 text-[#16A34A]',
+    ocupada: 'border-[#DC2626] bg-[#DC2626]/5 text-[#DC2626]',
+    lista: 'border-[#2563EB] bg-[#2563EB]/5 text-[#2563EB]',
+    por_pagar: 'border-[#D97706] bg-[#D97706]/5 text-[#D97706]',
 };
 
 const etiquetas: Record<string, string> = {
@@ -26,10 +26,13 @@ export default function TarjetaMesa({ mesa, onClick }: Props) {
     return (
         <button
             onClick={() => onClick(mesa)}
-    className={`border-2 rounded-xl p-6 flex flex-col items-center gap-2 transition-all ${colores[mesa.estado]}`}
->
-    <span className="text-3xl font-black text-gray-800">{mesa.id_mesa}</span>
-        <span className="text-xs font-medium text-gray-600">{etiquetas[mesa.estado]}</span>
+            className={`min-h-36 rounded-2xl border bg-white p-5 text-left transition active:scale-[0.99] ${estilos[mesa.estado] ?? 'border-[#E4E4E4] text-[#6B7280]'}`}
+        >
+            <span className="block text-sm font-medium text-[#6B7280]">Mesa</span>
+            <span className="mt-2 block text-4xl font-extrabold text-[#0A0A0A]">{mesa.id_mesa}</span>
+            <span className="mt-4 inline-flex rounded-full border border-current px-3 py-1 text-xs font-semibold">
+                {etiquetas[mesa.estado] ?? mesa.estado}
+            </span>
         </button>
-);
+    );
 }

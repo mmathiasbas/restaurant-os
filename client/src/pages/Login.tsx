@@ -21,51 +21,52 @@ export default function Login() {
             login(respuesta.data.token, respuesta.data.usuario);
             navigate(`/${respuesta.data.usuario.rol}`);
         } catch {
-            setError('Correo o contraseña incorrectos');
+            setError('Correo o contrasena incorrectos');
         } finally {
             setCargando(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm">
-                <h1 className="text-2xl font-bold text-gray-800 mb-2">Restaurant OS</h1>
-                <p className="text-gray-500 text-sm mb-6">Inicia sesión para continuar</p>
+        <div className="flex min-h-screen items-center justify-center bg-[#F7F7F7] p-4">
+            <div className="w-full max-w-sm rounded-3xl border border-[#E4E4E4] bg-white p-6">
+                <p className="text-sm font-medium text-[#6B7280]">Restaurant OS</p>
+                <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#0A0A0A]">Iniciar sesion</h1>
+                <p className="mt-2 text-sm text-[#6B7280]">Accede a tu panel operativo.</p>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
                     <div>
-                        <label className="text-sm font-medium text-gray-700">Correo</label>
+                        <label className="text-sm font-semibold text-[#0A0A0A]">Correo</label>
                         <input
                             type="email"
                             value={correo}
                             onChange={(e) => setCorreo(e.target.value)}
-                            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            className="mt-2 w-full rounded-2xl border border-[#E4E4E4] bg-white px-4 py-3 text-sm outline-none focus:border-[#171717]"
                             placeholder="correo@ejemplo.com"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="text-sm font-medium text-gray-700">Contraseña</label>
+                        <label className="text-sm font-semibold text-[#0A0A0A]">Contrasena</label>
                         <input
                             type="password"
                             value={contrasena}
                             onChange={(e) => setContrasena(e.target.value)}
-                            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                            placeholder="••••••••"
+                            className="mt-2 w-full rounded-2xl border border-[#E4E4E4] bg-white px-4 py-3 text-sm outline-none focus:border-[#171717]"
+                            placeholder="********"
                             required
                         />
                     </div>
 
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    {error && <p className="rounded-2xl bg-[#DC2626]/10 p-3 text-sm font-medium text-[#DC2626]">{error}</p>}
 
                     <button
                         type="submit"
                         disabled={cargando}
-                        className="bg-gray-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-gray-700 disabled:opacity-50"
+                        className="min-h-12 rounded-2xl bg-[#171717] text-sm font-semibold text-white hover:bg-black disabled:opacity-50"
                     >
-                        {cargando ? 'Cargando...' : 'Iniciar sesión'}
+                        {cargando ? 'Cargando...' : 'Iniciar sesion'}
                     </button>
                 </form>
             </div>

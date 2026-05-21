@@ -9,6 +9,10 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     console.log('Creando datos de prueba...');
 
+    await prisma.$executeRawUnsafe(
+        'TRUNCATE TABLE "Actividad", "Venta", "OrdenItem", "Orden", "Jornada", "Carta", "Mesa", "Usuario" RESTART IDENTITY CASCADE'
+    );
+
     // Usuarios
     const usuarios: { nombre: string; rol: Rol; correo: string; contrasena: string}[] = [
         { nombre: 'Mathias Admin', rol: Rol.administrador, correo: 'administrador@restaurant.com', contrasena: 'admin123'},
