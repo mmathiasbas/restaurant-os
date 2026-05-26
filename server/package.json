@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx src/app.ts"
+    "dev": "tsx src/app.ts",
+    "build": "tsc && copyfiles -u 1 src/generated/**/* dist/"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +37,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.8.0",
     "@types/pg": "^8.20.0",
+    "copyfiles": "^2.4.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.22.0",
     "typescript": "^6.0.3"
