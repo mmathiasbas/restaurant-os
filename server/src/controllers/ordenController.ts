@@ -79,6 +79,10 @@ export const actualizarOrden = async (req: Request, res: Response) => {
             await registrarActividad('cocina', `La orden de la mesa ${orden.id_mesa} esta lista`);
         }
 
+        if (estado === 'cancelada') {
+            await registrarActividad('orden', `Pedido cancelado en la mesa ${orden.id_mesa}`);
+        }
+
         if (estado === 'entregada') {
             await prisma.mesa.update({
                 where: { id_mesa: orden.id_mesa },

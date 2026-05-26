@@ -69,7 +69,7 @@ model Orden {
   estado       EstadoOrden @default(pendiente)
   fecha_hora   DateTime    @default(now())
   mesero       Usuario     @relation(fields: [id_mesero], references: [id_usuario])
-  mesa         Mesa        @relation(fields: [id_mesa], references: [id_mesa])
+  mesa         Mesa        @relation(fields: [id_mesa], references: [id_mesa], onDelete: Cascade)
   items        OrdenItem[]
   venta        Venta?
 }

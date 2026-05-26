@@ -115,7 +115,7 @@ export default function Mesero({ modoDemo = false }: Props) {
                     </div>
                 </header>
 
-                <section className="grid grid-cols-2 gap-3">
+                <section className="grid grid-cols-2 gap-3 max-h-[calc(100vh-200px)] overflow-y-auto">
                     {mesas.map(mesa => (
                         <TarjetaMesa key={mesa.id_mesa} mesa={mesa} onClick={handleMesaClick} />
                     ))}

@@ -81,8 +81,16 @@ export default function Cajero({ modoDemo = false }: Props) {
     };
 
     useEffect(() => {
-        cargarDatos();
-        const intervalo = setInterval(cargarDatos, 3000);
+        const iniciar = async () => {
+            await cargarDatos();
+        };
+
+        iniciar();
+
+        const intervalo = setInterval(() => {
+            cargarDatos();
+        }, 3000);
+
         return () => clearInterval(intervalo);
     }, []);
 
@@ -145,7 +153,7 @@ export default function Cajero({ modoDemo = false }: Props) {
                         {mesas.length === 0 ? (
                             <p className="rounded-2xl border border-dashed border-[#E4E4E4] p-5 text-sm text-[#6B7280]">Sin mesas por cobrar</p>
                         ) : (
-                            <div className="flex flex-col gap-2">
+                            <div className="flex max-h-[360px] flex-col gap-2 overflow-y-auto pr-1">
                                 {mesas.map(mesa => (
                                     <button
                                         key={mesa.id_mesa}
@@ -167,7 +175,7 @@ export default function Cajero({ modoDemo = false }: Props) {
                             {historial.length === 0 ? (
                                 <p className="text-sm text-[#6B7280]">Aun no hay ventas pagadas hoy</p>
                             ) : (
-                                <div className="flex flex-col gap-3">
+                                <div className="flex max-h-[420px] flex-col gap-3 overflow-y-auto pr-1">
                                     {historial.slice(0, 6).map(orden => {
                                         const metodo = metodosCobro[orden.id_orden] ?? 'Efectivo';
                                         const cantidadItems = orden.items.reduce((total, item) => total + item.cantidad, 0);
