@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ordenController_1 = require("../controllers/ordenController");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const roleMiddleware_1 = require("../middlewares/roleMiddleware");
+const jornadaMiddleware_1 = require("../middlewares/jornadaMiddleware");
+const router = (0, express_1.Router)();
+router.get('/', authMiddleware_1.verificarToken, (0, roleMiddleware_1.verificarRol)("administrador", "mesero", "cajero", "cocinero"), ordenController_1.getOrden);
+router.post("/", authMiddleware_1.verificarToken, (0, roleMiddleware_1.verificarRol)("administrador", "mesero"), jornadaMiddleware_1.verificarJornadaAbierta, ordenController_1.crearOrden);
+router.post("/:id_orden/items", authMiddleware_1.verificarToken, (0, roleMiddleware_1.verificarRol)("administrador", "mesero"), jornadaMiddleware_1.verificarJornadaAbierta, ordenController_1.agregarItemsOrden);
+router.put("/:id_orden", authMiddleware_1.verificarToken, (0, roleMiddleware_1.verificarRol)("administrador", "mesero", "cocinero", "cajero"), jornadaMiddleware_1.verificarJornadaAbierta, ordenController_1.actualizarOrden);
+exports.default = router;
