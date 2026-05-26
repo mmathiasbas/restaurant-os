@@ -58,7 +58,7 @@ export const cerrarJornada = async (req: Request, res: Response) => {
             }
         });
 
-        const totalVendido = ventas.reduce((total, venta) => total + Number(venta.monto), 0);
+        const totalVendido = ventas.reduce((total: number, venta: any) => total + Number(venta.monto), 0);
         const ordenesCompletadas = ventas.length;
 
         const jornadaCerrada = await prisma.jornada.update({
